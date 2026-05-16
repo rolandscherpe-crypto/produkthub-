@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProduktHub – GeileSachen.de</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #333;
+    --accent: #ff4d00;
+    --accent2: #ffcc00;
+    --text: #f0f0f0;
+    --muted: #888;
+    --success: #00e676;
+    --danger: #ff1744;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .logo span { color: var(--accent2); }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .header-stats strong { color: var(--text); }
+
+  /* LAYOUT */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 8px;
+    margin: 8px 0 4px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s;
+    width: 100%;
+  }
+
+  .nav-btn:hover { background: var(--surface2); }
+  .nav-btn.active { background: var(--accent); color: #fff; }
+  .nav-btn .icon { font-size: 18px; }
+
+  /* MAIN */
+  main {
+    padding: 32px;
+    overflow-y: auto;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #e04400; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-success { background: var(--success); color: #000; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* PRODUCT GRID */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .product-card:hover { border-color: var(--accent); }
+
+  .product-card-img {
+    width: 100%;
+    height: 160px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--muted);
+    position: relative;
+  }
+
+  .product-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-active { background: var(--success); color: #000; }
+  .status-draft { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .status-archived { background: #333; color: var(--muted); }
+
+  .product-card-body { padding: 16px; }
+
+  .product-card-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .product-card-sku {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .product-card-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .product-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* PLATFORMS */
+  .platform-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .chip.assigned { border-color: var(--accent); color: var(--accent); }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  input, textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 100px; }
+
+  select option { background: var(--surface2); }
+
+  /* PLATFORM CHECKBOXES */
+  .platform-check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .platform-check {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .platform-check input[type=checkbox] { display: none; }
+  .platform-check.checked { border-color: var(--accent); background: rgba(255,77,0,0.1); color: var(--accent); }
+
+  .platform-check .picon { font-size: 20px; }
+
+  /* EXPORT PANEL */
+  .export-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .export-panel h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .code-block {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    color: #aaa;
+    max-height: 300px;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .copy-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .copy-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  /* IMPORT */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(255,77,0,0.05);
+    color: var(--text);
+  }
+
+  .drop-zone .big-icon { font-size: 48px; margin-bottom: 12px; }
+  .drop-zone p { font-size: 14px; line-height: 1.6; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--success);
+    color: #000;
+    font-weight: 700;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 80px 32px;
+    color: var(--muted);
+  }
+
+  .empty-state .big { font-size: 64px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+
+  .filter-bar input {
+    max-width: 280px;
+  }
+
+  .filter-bar select { max-width: 160px; }
+
+  /* PLATFORM COLORS */
+  .p-sumup { color: #00b4d8; }
+  .p-tiktok { color: #ff0050; }
+  .p-paypal { color: #003087; background: #fff; }
+  .p-etsy { color: #f1641e; }
+  .p-shopify { color: #96bf48; }
+  .p-wix { color: #faad4d; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+  /* SOCIAL POSTS */
+  .social-platform-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .social-platform-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .social-platform-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .char-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .char-count.warn { color: var(--accent2); }
+  .char-count.over { color: var(--danger); }
+
+  .post-textarea {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 16px;
+    resize: vertical;
+    min-height: 120px;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+
+  .post-textarea:focus { outline: none; border-color: var(--accent); }
+
+  .hashtag-row {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    line-height: 1.8;
+    word-break: break-word;
+  }
+
+  .post-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tag button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0; line-height: 1; }
+  .tag button:hover { color: var(--danger); }
+  #tagInput { flex: 1; min-width: 120px; }
+
+  .image-preview-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .image-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .image-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .image-thumb button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Produkt<span>Hub</span> <span style="font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:300;">GeileSachen.de</span></div>
+  <div class="header-stats">
+    <span>Produkte: <strong id="statTotal">0</strong></span>
+    <span>Aktiv: <strong id="statActive">0</strong></span>
+    <span>Entwürfe: <strong id="statDraft">0</strong></span>
+  </div>
+</header>
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-label">Navigation</div>
+    <button class="nav-btn active" onclick="showView('products')" id="nav-products">
+      <span class="icon">📦</span> Produkte
+    </button>
+    <button class="nav-btn" onclick="showView('export')" id="nav-export">
+      <span class="icon">📤</span> Exportieren
+    </button>
+    <button class="nav-btn" onclick="showView('import')" id="nav-import">
+      <span class="icon">📥</span> Importieren
+    </button>
+    <button class="nav-btn" onclick="showView('social')" id="nav-social">
+      <span class="icon">📣</span> Social Media Posts
+    </button>
+    <button class="nav-btn" onclick="showView('catalog')" id="nav-catalog">
+      <span class="icon">🗂️</span> Meta Katalog
+    </button>
+
+    <div class="sidebar-label" style="margin-top:16px;">Plattformen</div>
+    <div style="padding: 8px 12px; font-size:13px; color:var(--muted); line-height:1.8;">
+      🛒 SumUp<br>
+      🎵 TikTok Shop<br>
+      🅿️ PayPal<br>
+      🛍️ Etsy<br>
+      🟢 Shopify<br>
+      🌐 Wix
+    </div>
+
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary" style="margin-top:16px;" onclick="clearAllData()">
+      🗑️ Alle Daten löschen
+    </button>
+  </nav>
+
+  <main>
+    <!-- PRODUKTE VIEW -->
+    <div class="view active" id="view-products">
+      <div class="page-header">
+        <div class="page-title">📦 Meine Produkte</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="showView('import')">📥 Importieren</button>
+          <button class="btn btn-primary" onclick="openNewProduct()">＋ Neues Produkt</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Suchen..." oninput="renderProducts()">
+        <select id="filterStatus" onchange="renderProducts()">
+          <option value="">Alle Status</option>
+          <option value="active">Aktiv</option>
+          <option value="draft">Entwurf</option>
+          <option value="archived">Archiviert</option>
+        </select>
+        <select id="filterPlatform" onchange="renderProducts()">
+          <option value="">Alle Plattformen</option>
+          <option value="sumup">SumUp</option>
+          <option value="tiktok">TikTok Shop</option>
+          <option value="paypal">PayPal</option>
+          <option value="etsy">Etsy</option>
+          <option value="shopify">Shopify</option>
+          <option value="wix">Wix</option>
+        </select>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <!-- EXPORT VIEW -->
+    <div class="view" id="view-export">
+      <div class="page-header">
+        <div class="page-title">📤 Exportieren</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        <div>
+          <label style="display:block;margin-bottom:8px;">Produkt auswählen</label>
+          <select id="exportProduct" style="width:100%" onchange="renderExport()">
+            <option value="">-- Alle Produkte --</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:8px;">Format</label>
+          <select id="exportFormat" style="width:100%" onchange="renderExport()">
+            <option value="json">JSON (Universal)</option>
+            <option value="csv">CSV (SumUp / Shopify)</option>
+            <option value="sumup">SumUp CSV</option>
+            <option value="tiktok">TikTok Shop TSV</option>
+            <option value="paypal">PayPal CSV</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="export-panel">
+        <h3 id="exportTitle">📋 Export-Vorschau</h3>
+        <div class="copy-bar">
+          <span class="copy-label" id="exportMeta">Wähle ein Format oben</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="copyExport()">📋 Kopieren</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadExport()">⬇️ Download</button>
+          </div>
+        </div>
+        <div class="code-block" id="exportCode">// Wähle ein Produkt und Format...</div>
+      </div>
+    </div>
+
+    <!-- IMPORT VIEW -->
+    <div class="view" id="view-import">
+      <div class="page-header">
+        <div class="page-title">📥 Importieren</div>
+      </div>
+
+      <div class="export-panel">
+        <h3>📂 CSV-Import (SumUp / Shopify)</h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">
+          Exportiere deine Produkte aus SumUp als CSV und lade sie hier hoch. Die Produkte werden automatisch erkannt und importiert.
+        </p>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="this.classList.remove('dragover')">
+          <div class="big-icon">📂</div>
+          <p><strong>CSV-Datei hier reinziehen</strong><br>oder klicken zum Auswählen<br><span style="font-size:12px;margin-top:8px;display:block;">Unterstützt: SumUp CSV, Shopify CSV, Universal JSON</span></p>
+        </div>
+        <input type="file" id="fileInput" accept=".csv,.json" style="display:none" onchange="handleFileInput(event)">
+      </div>
+
+      <div class="export-panel" style="margin-top:0;">
+        <h3>✍️ Manueller JSON-Import</h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:12px;">Paste JSON direkt ein:</p>
+        <textarea id="manualImport" placeholder='[{"name":"Produkt","price":19.99,...}]' style="font-family:Space Mono,monospace;font-size:12px;min-height:140px;"></textarea>
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary" onclick="importManualJSON()">✅ Importieren</button>
+        </div>
+      </div>
+    </div>
+    <!-- SOCIAL MEDIA VIEW -->
+    <div class="view" id="view-social">
+      <div class="page-header">
+        <div class="page-title">📣 Social Media Posts</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        <div>
+          <label style="display:block;margin-bottom:8px;">Produkt wählen</label>
+          <select id="socialProduct" style="width:100%" onchange="renderSocialPosts()">
+            <option value="">-- Produkt wählen --</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:8px;">Stil</label>
+          <select id="socialStyle" style="width:100%" onchange="renderSocialPosts()">
+            <option value="freaky">Frech & direkt (GeileSachen-Stil)</option>
+            <option value="biker">Biker / Freigeister</option>
+            <option value="hype">Hype / Viral</option>
+            <option value="info">Sachlich / Produktinfo</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="socialPostsContainer">
+        <div class="empty-state">
+          <div class="big">📣</div>
+          <h3>Produkt wählen</h3>
+          <p>Wähle oben ein Produkt und der Generator erstellt Posts für alle Plattformen.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- META KATALOG VIEW -->
+    <div class="view" id="view-catalog">
+      <div class="page-header">
+        <div class="page-title">🗂️ Meta Katalog</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary btn-sm" onclick="copyCatalog()">📋 Kopieren</button>
+          <button class="btn btn-primary btn-sm" onclick="downloadCatalog()">⬇️ Download CSV</button>
+        </div>
+      </div>
+
+      <div class="export-panel" style="margin-bottom:16px;">
+        <p style="color:var(--muted);font-size:14px;line-height:1.8;">
+          📘 <strong style="color:var(--text)">Facebook Shop & Instagram Shop</strong> nutzen den <strong style="color:var(--text)">Meta Commerce Manager</strong>.<br>
+          Lade diese CSV dort unter <em>Katalog → Datenquellen → CSV hochladen</em> hoch.<br>
+          URL: <a href="https://business.facebook.com/commerce" target="_blank" style="color:var(--accent)">business.facebook.com/commerce</a>
+        </p>
+      </div>
+
+      <div class="export-panel">
+        <h3>📋 Meta Catalog CSV Vorschau</h3>
+        <div class="copy-bar">
+          <span class="copy-label" id="catalogMeta">0 Produkte</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="copyCatalog()">📋 Kopieren</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadCatalog()">⬇️ Download</button>
+          </div>
+        </div>
+        <div class="code-block" id="catalogCode">// Produkte werden hier angezeigt...</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PRODUKT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Neues Produkt</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Produktname *</label>
+        <input type="text" id="f-name" placeholder="z.B. Dog Tag Totenkopf">
+      </div>
+      <div class="form-group">
+        <label>SKU / Artikelnummer</label>
+        <input type="text" id="f-sku" placeholder="z.B. DT-001">
+      </div>
+      <div class="form-group">
+        <label>Preis (€) *</label>
+        <input type="number" id="f-price" placeholder="19.99" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Vergleichspreis (€)</label>
+        <input type="number" id="f-compare-price" placeholder="24.99" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Kategorie</label>
+        <input type="text" id="f-category" placeholder="z.B. Dog Tags, Schmuck">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="draft">Entwurf</option>
+          <option value="active">Aktiv</option>
+          <option value="archived">Archiviert</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Kurzbeschreibung (Tagline)</label>
+        <input type="text" id="f-tagline" placeholder="z.B. Für Biker, Freigeister und solche, die keinen Scheiß machen">
+      </div>
+      <div class="form-group full">
+        <label>Beschreibung</label>
+        <textarea id="f-description" placeholder="Produktbeschreibung..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label>Material / Specs</label>
+        <input type="text" id="f-specs" placeholder="z.B. Aluminium, eloxiert, 30×50mm, inkl. Kette">
+      </div>
+      <div class="form-group full">
+        <label>Tags</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="tagInput" placeholder="Tag eingeben + Enter">
+          <button class="btn btn-secondary btn-sm" onclick="addTag()">＋</button>
+        </div>
+        <div class="tag-row" id="tagRow"></div>
+      </div>
+      <div class="form-group full">
+        <label>Bild-URL(s)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="f-img-url" placeholder="https://... oder lokalen Pfad">
+          <button class="btn btn-secondary btn-sm" onclick="addImage()">＋ Bild</button>
+        </div>
+        <div class="image-preview-row" id="imgPreviewRow"></div>
+      </div>
+      <div class="form-group full">
+        <label>Plattformen (Zuweisung)</label>
+        <div class="platform-check-grid" id="platformChecks">
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="sumup"> <span class="picon">🛒</span> SumUp
+          </label>
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="tiktok"> <span class="picon">🎵</span> TikTok Shop
+          </label>
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="paypal"> <span class="picon">🅿️</span> PayPal
+          </label>
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="etsy"> <span class="picon">🛍️</span> Etsy
+          </label>
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="shopify"> <span class="picon">🟢</span> Shopify
+          </label>
+          <label class="platform-check" onclick="togglePlatform(this)">
+            <input type="checkbox" value="wix"> <span class="picon">🌐</span> Wix
+          </label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Versandhinweis</label>
+        <input type="text" id="f-shipping" placeholder="z.B. Kostenloser Versand" value="Kostenloser Versand">
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div id="deleteBtn"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveProduct()">💾 Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ───── STATE ─────
+let products = JSON.parse(localStorage.getItem('produkthub_products') || '[]');
+let editingId = null;
+let currentTags = [];
+let currentImages = [];
+
+const PLATFORMS = ['sumup','tiktok','paypal','etsy','shopify','wix'];
+const PLATFORM_LABELS = { sumup:'SumUp', tiktok:'TikTok Shop', paypal:'PayPal', etsy:'Etsy', shopify:'Shopify', wix:'Wix' };
+
+function save() {
+  localStorage.setItem('produkthub_products', JSON.stringify(products));
+  updateStats();
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = products.length;
+  document.getElementById('statActive').textContent = products.filter(p=>p.status==='active').length;
+  document.getElementById('statDraft').textContent = products.filter(p=>p.status==='draft').length;
+}
+
+// ───── VIEWS ─────
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  if(v==='export') renderExportSelect();
+  if(v==='products') renderProducts();
+  if(v==='social') { renderSocialSelect(); renderSocialPosts(); }
+  if(v==='catalog') renderCatalog();
+}
+
+// ───── PRODUCT LIST ─────
+function renderProducts() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const fs = document.getElementById('filterStatus').value;
+  const fp = document.getElementById('filterPlatform').value;
+
+  let list = products.filter(p => {
+    if(q && !p.name.toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
+    if(fs && p.status !== fs) return false;
+    if(fp && !(p.platforms||[]).includes(fp)) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('productGrid');
+  if(list.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="big">📦</div>
+      <h3>Noch keine Produkte</h3>
+      <p>Lege dein erstes Produkt an oder importiere deine SumUp-Produkte.</p>
+      <button class="btn btn-primary" onclick="openNewProduct()">＋ Erstes Produkt anlegen</button>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => `
+    <div class="product-card">
+      <div class="product-card-img">
+        ${p.images && p.images[0] ? `<img src="${p.images[0]}" onerror="this.style.display='none'">` : '🏷️'}
+        <span class="status-badge status-${p.status}">${p.status==='active'?'Aktiv':p.status==='draft'?'Entwurf':'Archiviert'}</span>
+      </div>
+      <div class="product-card-body">
+        <div class="product-card-title">${p.name}</div>
+        <div class="product-card-sku">${p.sku || '–'}</div>
+        <div class="platform-chips">
+          ${PLATFORMS.map(pl=>`<span class="chip ${(p.platforms||[]).includes(pl)?'assigned':''}">${pl}</span>`).join('')}
+        </div>
+        <div class="product-card-price">${parseFloat(p.price||0).toFixed(2)} €</div>
+        <div class="product-card-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openEditProduct('${p.id}')">✏️ Bearbeiten</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickSocial('${p.id}')">📣</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickExport('${p.id}')">📤</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ───── MODAL ─────
+function openNewProduct() {
+  editingId = null;
+  currentTags = [];
+  currentImages = [];
+  document.getElementById('modalTitle').textContent = 'Neues Produkt';
+  document.getElementById('deleteBtn').innerHTML = '';
+  clearForm();
+  document.getElementById('productModal').classList.add('open');
+}
+
+function openEditProduct(id) {
+  const p = products.find(x=>x.id===id);
+  if(!p) return;
+  editingId = id;
+  currentTags = [...(p.tags||[])];
+  currentImages = [...(p.images||[])];
+  document.getElementById('modalTitle').textContent = 'Produkt bearbeiten';
+  document.getElementById('deleteBtn').innerHTML = `<button class="btn btn-danger btn-sm" onclick="deleteProduct('${id}')">🗑️ Löschen</button>`;
+  fillForm(p);
+  document.getElementById('productModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('productModal').classList.remove('open');
+}
+
+function clearForm() {
+  ['name','sku','price','compare-price','category','tagline','description','specs','shipping','img-url'].forEach(f=>{
+    const el = document.getElementById('f-'+f);
+    if(el) el.value = f==='shipping'?'Kostenloser Versand':'';
+  });
+  document.getElementById('f-status').value = 'draft';
+  document.querySelectorAll('.platform-check').forEach(el=>{
+    el.classList.remove('checked');
+    el.querySelector('input').checked = false;
+  });
+  renderTagRow();
+  renderImagePreviews();
+}
+
+function fillForm(p) {
+  document.getElementById('f-name').value = p.name||'';
+  document.getElementById('f-sku').value = p.sku||'';
+  document.getElementById('f-price').value = p.price||'';
+  document.getElementById('f-compare-price').value = p.comparePrice||'';
+  document.getElementById('f-category').value = p.category||'';
+  document.getElementById('f-tagline').value = p.tagline||'';
+  document.getElementById('f-description').value = p.description||'';
+  document.getElementById('f-specs').value = p.specs||'';
+  document.getElementById('f-shipping').value = p.shipping||'Kostenloser Versand';
+  document.getElementById('f-status').value = p.status||'draft';
+
+  document.querySelectorAll('.platform-check').forEach(el=>{
+    const val = el.querySelector('input').value;
+    const checked = (p.platforms||[]).includes(val);
+    el.classList.toggle('checked', checked);
+    el.querySelector('input').checked = checked;
+  });
+
+  renderTagRow();
+  renderImagePreviews();
+}
+
+function saveProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  const price = document.getElementById('f-price').value;
+  if(!name) { showToast('⚠️ Produktname fehlt!', '#ff4d00'); return; }
+
+  const platforms = [];
+  document.querySelectorAll('.platform-check input:checked').forEach(el => platforms.push(el.value));
+
+  const data = {
+    id: editingId || uid(),
+    name,
+    sku: document.getElementById('f-sku').value.trim(),
+    price: parseFloat(price)||0,
+    comparePrice: parseFloat(document.getElementById('f-compare-price').value)||0,
+    category: document.getElementById('f-category').value.trim(),
+    tagline: document.getElementById('f-tagline').value.trim(),
+    description: document.getElementById('f-description').value.trim(),
+    specs: document.getElementById('f-specs').value.trim(),
+    shipping: document.getElementById('f-shipping').value.trim(),
+    status: document.getElementById('f-status').value,
+    platforms,
+    tags: [...currentTags],
+    images: [...currentImages],
+    updatedAt: new Date().toISOString(),
+  };
+
+  if(editingId) {
+    const idx = products.findIndex(p=>p.id===editingId);
+    data.createdAt = products[idx].createdAt;
+    products[idx] = data;
+  } else {
+    data.createdAt = data.updatedAt;
+    products.unshift(data);
+  }
+
+  save();
+  closeModal();
+  renderProducts();
+  showToast('✅ Produkt gespeichert!');
+}
+
+function deleteProduct(id) {
+  if(!confirm('Produkt wirklich löschen?')) return;
+  products = products.filter(p=>p.id!==id);
+  save();
+  closeModal();
+  renderProducts();
+  showToast('🗑️ Gelöscht');
+}
+
+function clearAllData() {
+  if(!confirm('ALLE Produkte löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  products = [];
+  save();
+  renderProducts();
+  showToast('🗑️ Alle Daten gelöscht');
+}
+
+// ───── TAGS ─────
+function addTag() {
+  const input = document.getElementById('tagInput');
+  const val = input.value.trim();
+  if(val && !currentTags.includes(val)) {
+    currentTags.push(val);
+    renderTagRow();
+  }
+  input.value = '';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.activeElement.id === 'tagInput') {
+    e.preventDefault();
+    addTag();
+  }
+});
+
+function removeTag(t) {
+  currentTags = currentTags.filter(x=>x!==t);
+  renderTagRow();
+}
+
+function renderTagRow() {
+  document.getElementById('tagRow').innerHTML = currentTags.map(t=>
+    `<span class="tag">${t} <button onclick="removeTag('${t}')">×</button></span>`
+  ).join('');
+}
+
+// ───── IMAGES ─────
+function addImage() {
+  const url = document.getElementById('f-img-url').value.trim();
+  if(url && !currentImages.includes(url)) {
+    currentImages.push(url);
+    renderImagePreviews();
+  }
+  document.getElementById('f-img-url').value = '';
+}
+
+function removeImage(i) {
+  currentImages.splice(i, 1);
+  renderImagePreviews();
+}
+
+function renderImagePreviews() {
+  document.getElementById('imgPreviewRow').innerHTML = currentImages.map((url,i)=>
+    `<div class="image-thumb"><img src="${url}" onerror="this.style.display='none'"><button onclick="removeImage(${i})">×</button></div>`
+  ).join('');
+}
+
+// ───── PLATFORMS ─────
+function togglePlatform(label) {
+  const cb = label.querySelector('input');
+  setTimeout(()=>{
+    label.classList.toggle('checked', cb.checked);
+  }, 0);
+}
+
+// ───── EXPORT ─────
+function renderExportSelect() {
+  const sel = document.getElementById('exportProduct');
+  sel.innerHTML = '<option value="">-- Alle Produkte --</option>' +
+    products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  renderExport();
+}
+
+function quickExport(id) {
+  showView('export');
+  setTimeout(()=>{
+    document.getElementById('exportProduct').value = id;
+    renderExport();
+  }, 50);
+}
+
+function renderExport() {
+  const pid = document.getElementById('exportProduct').value;
+  const fmt = document.getElementById('exportFormat').value;
+  const list = pid ? products.filter(p=>p.id===pid) : products;
+  const code = generateExport(list, fmt);
+  document.getElementById('exportCode').textContent = code;
+  document.getElementById('exportMeta').textContent = `${list.length} Produkt(e) · Format: ${fmt.toUpperCase()}`;
+  document.getElementById('exportTitle').textContent = `📋 ${fmt.toUpperCase()} Export`;
+}
+
+function generateExport(list, fmt) {
+  if(fmt === 'json') return JSON.stringify(list, null, 2);
+  if(fmt === 'csv' || fmt === 'sumup') return toSumUpCSV(list);
+  if(fmt === 'tiktok') return toTikTokTSV(list);
+  if(fmt === 'paypal') return toPayPalCSV(list);
+  return JSON.stringify(list, null, 2);
+}
+
+function csvRow(arr) {
+  return arr.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',');
+}
+
+function toSumUpCSV(list) {
+  const header = csvRow(['Name','Description','Price','SKU','Category','Tags','Image URL']);
+  const rows = list.map(p => csvRow([
+    p.name, p.description||p.tagline||'', p.price, p.sku||'', p.category||'',
+    (p.tags||[]).join(','), (p.images||[])[0]||''
+  ]));
+  return [header, ...rows].join('\n');
+}
+
+function toTikTokTSV(list) {
+  const cols = ['Product Name','Description','Price','SKU','Category','Image URL','Tags','Shipping'];
+  const header = cols.join('\t');
+  const rows = list.map(p => [
+    p.name, p.description||p.tagline||'', p.price, p.sku||'', p.category||'',
+    (p.images||[])[0]||'', (p.tags||[]).join(','), p.shipping||''
+  ].join('\t'));
+  return [header, ...rows].join('\n');
+}
+
+function toPayPalCSV(list) {
+  const header = csvRow(['Name','Description','Price','Currency','Item Number','URL']);
+  const rows = list.map(p => csvRow([
+    p.name, p.description||p.tagline||'', p.price, 'EUR', p.sku||p.id, ''
+  ]));
+  return [header, ...rows].join('\n');
+}
+
+function copyExport() {
+  const code = document.getElementById('exportCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('📋 Kopiert!'));
+}
+
+function downloadExport() {
+  const fmt = document.getElementById('exportFormat').value;
+  const code = document.getElementById('exportCode').textContent;
+  const ext = fmt === 'tiktok' ? 'tsv' : fmt === 'json' ? 'json' : 'csv';
+  const blob = new Blob([code], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `produkthub_export_${fmt}_${Date.now()}.${ext}`;
+  a.click();
+}
+
+// ───── IMPORT ─────
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('dragover');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(file) processFile(file);
+}
+
+function handleFileInput(e) {
+  const file = e.target.files[0];
+  if(file) processFile(file);
+}
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const content = e.target.result;
+    if(file.name.endsWith('.json')) {
+      importJSON(content);
+    } else {
+      importCSV(content);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function importJSON(text) {
+  try {
+    const data = JSON.parse(text);
+    const list = Array.isArray(data) ? data : [data];
+    let added = 0;
+    list.forEach(p => {
+      if(!p.name) return;
+      if(!p.id) p.id = uid();
+      if(!products.find(x=>x.id===p.id)) { products.unshift(p); added++; }
+    });
+    save(); renderProducts();
+    showToast(`✅ ${added} Produkt(e) importiert!`);
+    showView('products');
+  } catch(err) {
+    showToast('❌ JSON-Fehler: '+err.message, '#ff4d00');
+  }
+}
+
+function importCSV(text) {
+  const lines = text.trim().split('\n');
+  if(lines.length < 2) { showToast('❌ CSV leer oder ungültig', '#ff4d00'); return; }
+
+  const header = parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
+  const nameIdx = header.findIndex(h=>h.includes('name'));
+  const priceIdx = header.findIndex(h=>h.includes('price') || h.includes('preis'));
+  const descIdx = header.findIndex(h=>h.includes('desc') || h.includes('beschreib'));
+  const skuIdx = header.findIndex(h=>h.includes('sku') || h.includes('artikel'));
+  const catIdx = header.findIndex(h=>h.includes('cat') || h.includes('kategor'));
+  const imgIdx = header.findIndex(h=>h.includes('image') || h.includes('bild') || h.includes('url'));
+
+  let added = 0;
+  lines.slice(1).forEach(line => {
+    const cols = parseCSVLine(line);
+    if(!cols[nameIdx]) return;
+    const p = {
+      id: uid(),
+      name: cols[nameIdx]||'',
+      price: parseFloat((cols[priceIdx]||'0').replace(',','.'))||0,
+      description: cols[descIdx]||'',
+      sku: cols[skuIdx]||'',
+      category: cols[catIdx]||'',
+      images: cols[imgIdx] ? [cols[imgIdx]] : [],
+      status: 'draft',
+      platforms: [],
+      tags: [],
+      shipping: 'Kostenloser Versand',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    products.unshift(p);
+    added++;
+  });
+
+  save(); renderProducts();
+  showToast(`✅ ${added} Produkt(e) importiert!`);
+  showView('products');
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for(let i=0; i<line.length; i++) {
+    const ch = line[i];
+    if(ch==='"') {
+      if(inQuotes && line[i+1]==='"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if(ch===',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function importManualJSON() {
+  const text = document.getElementById('manualImport').value.trim();
+  if(!text) return;
+  importJSON(text);
+  document.getElementById('manualImport').value = '';
+}
+
+// ───── TOAST ─────
+function showToast(msg, color='#00e676') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.style.color = color === '#00e676' ? '#000' : '#fff';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ───── SOCIAL MEDIA ─────
+const SOCIAL_PLATFORMS = [
+  { key: 'tiktok',    label: 'TikTok',         icon: '🎵', limit: 2200 },
+  { key: 'instagram', label: 'Instagram',       icon: '📸', limit: 2200 },
+  { key: 'facebook',  label: 'Facebook',        icon: '📘', limit: 63206 },
+  { key: 'fbshop',    label: 'Facebook Shop',   icon: '🛒', limit: 200 },
+];
+
+const POST_TEMPLATES = {
+  freaky: {
+    tiktok: (p) => `💀 ${p.name.toUpperCase()} – weil du kein Schaf bist.\n\n${p.tagline || p.description || ''}\n\nHandgraviert. Einzigartig. Genau wie du.\n✅ ${p.shipping || 'Kostenloser Versand'} | Nur ${p.price}€`,
+    instagram: (p) => `${p.name} 🔥\n\n${p.tagline || ''}\n\n${p.description ? p.description.slice(0,180) + (p.description.length>180?'…':'') : ''}\n\n💥 Handgraviert auf Bestellung\n📦 ${p.shipping || 'Kostenloser Versand'}\n💰 Ab ${p.price}€\n\n👇 Link in Bio`,
+    facebook: (p) => `🔥 NEU bei GeileSachen.de: ${p.name}\n\n${p.tagline || ''}\n\n${p.description || ''}\n\n${p.specs ? '📐 Specs: ' + p.specs + '\n\n' : ''}Jedes Stück wird individuell graviert – kein Massenprodukt, sondern echtes Handwerk für Leute, die wissen was sie wollen.\n\n✅ ${p.shipping || 'Kostenloser Versand'}\n💰 Preis: ${p.price}€${p.comparePrice ? ' (statt ' + p.comparePrice + '€)' : ''}\n\n👉 geilesachen.de`,
+    fbshop: (p) => `${p.name} – ${p.tagline || p.description?.slice(0,80) || ''}. Ab ${p.price}€. ${p.shipping || 'Kostenloser Versand'}.`,
+  },
+  biker: {
+    tiktok: (p) => `🏍️ Für die, die kein Label brauchen – außer ihrem eigenen.\n\n${p.name} | Handgraviert | ${p.price}€\n\n${p.tagline || ''}\n\n✅ ${p.shipping || 'Kostenloser Versand'}`,
+    instagram: (p) => `Kein Schnickschnack. Kein Bullshit. 🏍️\n\n${p.name} – handgraviert, robust, für Menschen mit Haltung.\n\n${p.tagline || ''}\n\n${p.specs ? '📐 ' + p.specs : ''}\n💰 ${p.price}€ | ${p.shipping || 'Kostenloser Versand'}\n\n👇 Link in Bio`,
+    facebook: (p) => `Für Biker, Freigeister und alle, die ihren eigenen Weg gehen. 🏍️\n\n${p.name}\n\n${p.description || p.tagline || ''}\n\n${p.specs ? 'Material & Maße: ' + p.specs + '\n' : ''}Preis: ${p.price}€ | ${p.shipping || 'Kostenloser Versand'}\n\n➡️ geilesachen.de`,
+    fbshop: (p) => `${p.name} – handgraviert für echte Charakterköpfe. ${p.price}€. ${p.shipping || 'Kostenloser Versand'}.`,
+  },
+  hype: {
+    tiktok: (p) => `POV: Du findest das geilste Accessoire 🔥\n\n${p.name} – nur ${p.price}€\n${p.tagline || ''}\n\n✅ ${p.shipping || 'Kostenloser Versand'} 📦`,
+    instagram: (p) => `Okay aber hör mal kurz zu 👇\n\n${p.name} – handgraviert, einzigartig, ${p.price}€.\n\n${p.tagline || ''}\n\nDas ist kein Massenprodukt. Das ist DEIN Ding. 💥\n\n${p.shipping || 'Kostenloser Versand'} | Link in Bio`,
+    facebook: (p) => `Guys. Schaut euch das an. 👀\n\n${p.name} – und ich schwöre, das Teil ist der Hammer.\n\n${p.description || p.tagline || ''}\n\nHandgraviert. ${p.price}€. ${p.shipping || 'Kostenloser Versand'}.\n\n💬 Teilen wenn ihr Bock habt! ➡️ geilesachen.de`,
+    fbshop: (p) => `🔥 ${p.name} – das Ding wird viral. Nur ${p.price}€. ${p.shipping || 'Versandkostenfrei'}.`,
+  },
+  info: {
+    tiktok: (p) => `${p.name} | ${p.price}€\n\n${p.description || p.tagline || ''}\n\n${p.specs ? '📐 ' + p.specs : ''}\n✅ ${p.shipping || 'Kostenloser Versand'}`,
+    instagram: (p) => `${p.name}\n\n${p.description || p.tagline || ''}\n\n${p.specs ? '📐 Specs: ' + p.specs + '\n' : ''}💰 ${p.price}€\n📦 ${p.shipping || 'Kostenloser Versand'}\n\n🔗 Link in Bio`,
+    facebook: (p) => `${p.name}\n\n${p.description || ''}\n\n${p.specs ? 'Specs: ' + p.specs + '\n' : ''}Preis: ${p.price}€\n${p.shipping || 'Kostenloser Versand'}\n\n👉 geilesachen.de`,
+    fbshop: (p) => `${p.name}. ${p.description?.slice(0,100) || p.tagline || ''}. ${p.price}€.`,
+  },
+};
+
+const HASHTAGS = {
+  tiktok: '#geilesachen #dogtag #handgraviert #biker #freigeist #einzigartig #schmuck #gravur #fyp #foryou',
+  instagram: '#geilesachen #dogtag #handgraviert #biker #freigeist #gravur #schmuck #unikat #individuell #instalove',
+  facebook: '#GeileSachen #Handgraviert #DogTag #Biker #Individuell',
+  fbshop: '',
+};
+
+function renderSocialSelect() {
+  const sel = document.getElementById('socialProduct');
+  sel.innerHTML = '<option value="">-- Produkt wählen --</option>' +
+    products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+function renderSocialPosts() {
+  const pid = document.getElementById('socialProduct').value;
+  const style = document.getElementById('socialStyle').value;
+  const container = document.getElementById('socialPostsContainer');
+
+  if(!pid) {
+    container.innerHTML = `<div class="empty-state"><div class="big">📣</div><h3>Produkt wählen</h3><p>Wähle oben ein Produkt.</p></div>`;
+    return;
+  }
+
+  const p = products.find(x=>x.id===pid);
+  if(!p) return;
+
+  const templates = POST_TEMPLATES[style] || POST_TEMPLATES.freaky;
+
+  container.innerHTML = SOCIAL_PLATFORMS.map(pl => {
+    const text = (templates[pl.key] || POST_TEMPLATES.freaky[pl.key])(p);
+    const tags = HASHTAGS[pl.key] || '';
+    const full = text + (tags ? '\n\n' + tags : '');
+    const len = full.length;
+    const countClass = len > pl.limit ? 'over' : len > pl.limit * 0.85 ? 'warn' : '';
+    const id = 'post_' + pl.key;
+    const hid = 'hash_' + pl.key;
+    return `
+      <div class="social-platform-block">
+        <div class="social-platform-header">
+          <div class="social-platform-title">${pl.icon} ${pl.label}</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="char-count ${countClass}" id="cc_${pl.key}">${len} / ${pl.limit}</span>
+            <button class="btn btn-secondary btn-sm" onclick="copyPost('${pl.key}')">📋 Kopieren</button>
+          </div>
+        </div>
+        <textarea class="post-textarea" id="${id}" oninput="updateCharCount('${pl.key}',${pl.limit})">${text}</textarea>
+        ${tags ? `<div class="hashtag-row" id="${hid}">${tags}</div>` : ''}
+        <div class="post-actions">
+          <button class="btn btn-secondary btn-sm" onclick="regeneratePost('${pl.key}','${pid}','${style}')">🔄 Neu generieren</button>
+          <button class="btn btn-primary btn-sm" onclick="copyPost('${pl.key}')">📋 Mit Hashtags kopieren</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateCharCount(key, limit) {
+  const ta = document.getElementById('post_' + key);
+  const hel = document.getElementById('hash_' + key);
+  const tags = hel ? '\n\n' + hel.textContent : '';
+  const len = (ta.value + tags).length;
+  const el = document.getElementById('cc_' + key);
+  el.textContent = len + ' / ' + limit;
+  el.className = 'char-count ' + (len > limit ? 'over' : len > limit * 0.85 ? 'warn' : '');
+}
+
+function copyPost(key) {
+  const ta = document.getElementById('post_' + key);
+  const hel = document.getElementById('hash_' + key);
+  const tags = hel ? '\n\n' + hel.textContent : '';
+  navigator.clipboard.writeText(ta.value + tags).then(()=>showToast('📋 Post kopiert!'));
+}
+
+function regeneratePost(key, pid, style) {
+  const p = products.find(x=>x.id===pid);
+  if(!p) return;
+  const templates = POST_TEMPLATES[style] || POST_TEMPLATES.freaky;
+  const fn = templates[key] || POST_TEMPLATES.freaky[key];
+  document.getElementById('post_' + key).value = fn(p);
+  const pl = SOCIAL_PLATFORMS.find(x=>x.key===key);
+  if(pl) updateCharCount(key, pl.limit);
+}
+
+// ───── META KATALOG ─────
+function renderCatalog() {
+  const csv = toMetaCatalogCSV(products);
+  document.getElementById('catalogCode').textContent = csv;
+  document.getElementById('catalogMeta').textContent = `${products.length} Produkt(e) · Facebook & Instagram Shop`;
+}
+
+function toMetaCatalogCSV(list) {
+  // Meta Commerce Manager required fields
+  const header = csvRow(['id','title','description','availability','condition','price','link','image_link','brand','google_product_category']);
+  const rows = list.map(p => csvRow([
+    p.id,
+    p.name,
+    (p.description || p.tagline || '').replace(/\n/g,' '),
+    p.status === 'active' ? 'in stock' : 'preorder',
+    'new',
+    p.price.toFixed(2) + ' EUR',
+    'https://geilesachen.de/produkte/' + (p.sku || p.id),
+    (p.images||[])[0] || '',
+    'GeileSachen.de',
+    '188' // Jewelry category
+  ]));
+  return [header, ...rows].join('\n');
+}
+
+function copyCatalog() {
+  navigator.clipboard.writeText(document.getElementById('catalogCode').textContent)
+    .then(()=>showToast('📋 Katalog kopiert!'));
+}
+
+function downloadCatalog() {
+  const csv = document.getElementById('catalogCode').textContent;
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `meta_catalog_${Date.now()}.csv`;
+  a.click();
+}
+
+function quickSocial(id) {
+  showView('social');
+  setTimeout(()=>{
+    document.getElementById('socialProduct').value = id;
+    renderSocialPosts();
+  }, 50);
+}
+
+// ───── INIT ─────
+updateStats();
+renderProducts();
+</script>
+</body>
+</html>
